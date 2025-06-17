@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: content-populator-job2
+spec:
+  template:
+    spec:
+      containers:
+      - name: content-writer
+        image: busybox
+        command: ["/bin/sh", "-c", "cp /source-html/index.html /nfs-share/index.html"]
+        volumeMounts:
+        - name: source-content-volume
+          mountPath: /source-html
+        - name: nfs-volume
+          mountPath: /nfs-share
+      volumes:
+      - name: source-content-volume
+        configMap:
+          name: web-content-configmap
+      - name: nfs-volume
+        persistentVolumeClaim:
+          claimName: my-pvclaim
+      restartPolicy: Never
+  backoffLimit: 4
